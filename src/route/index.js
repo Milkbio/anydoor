@@ -3,7 +3,7 @@ const path = require('path');
 const chalk = require('chalk');
 const {promisify} = require('util');
 const pug = require('pug');
-const config = require('../config');
+// const config = require('../config');
 const mime = require('../utils/mime');
 const compress = require('../utils/compress');
 const isFresh = require('../utils/cache');
@@ -14,7 +14,7 @@ const readDir = promisify(fs.readdir);
 
 const compiledFunction = pug.compileFile(path.resolve(__dirname, '../views/index.pug'));
 
-module.exports = async function (req, res, filePath) {
+module.exports = async function (req, res, filePath, config) {
     try {
         // 根据路径判断是文件还是文件夹，是文件就返回内容，是文件夹就返回文件列表
         const stats = await stat(filePath);
