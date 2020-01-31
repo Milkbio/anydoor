@@ -6,6 +6,7 @@ const pug = require('pug');
 const config = require('../config');
 const mime = require('../utils/mime');
 const compress = require('../utils/compress');
+const isFresh = require('../utils/cache');
 
 // 将各种回调转换为promise
 const stat = promisify(fs.stat);
@@ -18,8 +19,14 @@ module.exports = async function (req, res, filePath) {
         // 根据路径判断是文件还是文件夹，是文件就返回内容，是文件夹就返回文件列表
         const stats = await stat(filePath);
         if (stats.isFile()) {
-            res.statusCode = 200;
             res.setHeader('Content-type', `${mime(filePath)}; charset=utf-8`);
+            if (isFresh(stats, req, res)) {
+                res.statusCode = 304;
+                res.end();
+                return;
+            }
+            res.statusCode = 200;
+
             let stream = fs.createReadStream(filePath);
             if (filePath.match(config.compress)) {
                 stream = compress(stream, req, res)
