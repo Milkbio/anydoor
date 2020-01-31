@@ -4,6 +4,7 @@ const chalk = require('chalk');
 const {promisify} = require('util');
 const pug = require('pug');
 const config = require('../config');
+const mime = require('../utils/mime');
 
 // 将各种回调转换为promise
 const stat = promisify(fs.stat);
@@ -17,11 +18,12 @@ module.exports = async function (req, res, filePath) {
         const stats = await stat(filePath);
         if (stats.isFile()) {
             res.statusCode = 200;
-            res.setHeader('Content-type', 'text/plain; charset=utf-8');
+            res.setHeader('Content-type', `${mime(filePath)}; charset=utf-8`);
             fs.createReadStream(filePath).pipe(res);
         }
         if (stats.isDirectory()) {
             const files = await readDir(filePath);
+
             res.statusCode = 200;
             res.setHeader('Content-type', 'text/html; charset=utf-8');
             // res.end(files.join(','));
@@ -30,7 +32,12 @@ module.exports = async function (req, res, filePath) {
             res.end(compiledFunction({
                 title: path.basename(filePath),
                 dir: dir ? `/${dir}` : '',
-                list: files
+                list: files.map(file => {
+                    return {
+                        file,
+                        icon: mime(file)
+                    }
+                })
             }))
         }
     } catch (err) {
