@@ -1,9 +1,15 @@
 const fs = require('fs');
+const path = require('path');
+const chalk = require('chalk');
 const {promisify} = require('util');
+const pug = require('pug');
+const config = require('../config');
 
 // 将各种回调转换为promise
 const stat = promisify(fs.stat);
 const readDir = promisify(fs.readdir);
+
+const compiledFunction = pug.compileFile(path.resolve(__dirname, '../views/index.pug'));
 
 module.exports = async function (req, res, filePath) {
     try {
@@ -17,12 +23,20 @@ module.exports = async function (req, res, filePath) {
         if (stats.isDirectory()) {
             const files = await readDir(filePath);
             res.statusCode = 200;
-            res.setHeader('Content-type', 'text/plain; charset=utf-8');
-            res.end(files.join(','));
+            res.setHeader('Content-type', 'text/html; charset=utf-8');
+            // res.end(files.join(','));
+            // console.log(chalk.green(config.root, filePath));
+            const dir = path.relative(config.root, filePath);
+            res.end(compiledFunction({
+                title: path.basename(filePath),
+                dir: dir ? `/${dir}` : '',
+                list: files
+            }))
         }
     } catch (err) {
         res.statusCode = 404;
         res.setHeader('Content-type', 'text/plain; charset=utf-8');
+        console.log(err);
         res.end('没有找到请求的文件');
     }
 }
