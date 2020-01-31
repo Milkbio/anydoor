@@ -5,6 +5,7 @@ const {promisify} = require('util');
 const pug = require('pug');
 const config = require('../config');
 const mime = require('../utils/mime');
+const compress = require('../utils/compress');
 
 // 将各种回调转换为promise
 const stat = promisify(fs.stat);
@@ -19,7 +20,11 @@ module.exports = async function (req, res, filePath) {
         if (stats.isFile()) {
             res.statusCode = 200;
             res.setHeader('Content-type', `${mime(filePath)}; charset=utf-8`);
-            fs.createReadStream(filePath).pipe(res);
+            let stream = fs.createReadStream(filePath);
+            if (filePath.match(config.compress)) {
+                stream = compress(stream, req, res)
+            }
+            stream.pipe(res);
         }
         if (stats.isDirectory()) {
             const files = await readDir(filePath);
