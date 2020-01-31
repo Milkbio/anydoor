@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/app.js",
+    "start": "supervisor src/app.js",
     "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,6 +19,7 @@
     "@typescript-eslint/parser": "^2.18.0",
     "chalk": "^3.0.0",
     "eslint": "^6.8.0",
-    "pre-commit": "^1.2.2"
+    "pre-commit": "^1.2.2",
+    "supervisor": "^0.12.0"
   }
 }
