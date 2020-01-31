@@ -8,7 +8,6 @@ module.exports = {
         "eslint:recommended"
     ],
     "globals": {
-        "window": true
     },
     "parser": "esprima",
     "parserOptions": {
@@ -17,8 +16,5 @@ module.exports = {
     "plugins": [
     ],
     "rules": {
-        "no-console": [
-            0
-        ]
     }
 };
